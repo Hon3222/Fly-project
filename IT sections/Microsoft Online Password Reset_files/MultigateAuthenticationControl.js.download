@@ -1,0 +1,142 @@
+﻿//------------------------------------------------------------
+// Copyright (c) Microsoft Corporation.  All rights reserved.
+//------------------------------------------------------------
+var _multigateAuthenticationControl_authenticationTimer;
+
+function MultigateAuthenticationControl_SelectOption(radioRowId, authenticationDivId) {
+    MultigateAuthenticationControl_RadioRowSelected(radioRowId);
+    MultigateAuthenticationControl_ResetAuthenticationDivs();
+    CommonMultigate_MakeDivVisible(authenticationDivId);
+}
+
+function MultigateAuthenticationControl_SelectOfficeCall() {
+    MultigateAuthenticationControl_SelectOption('MultigateAuthenticationControl_OfficePhoneCallRadioButtonTr', 'MultigateAuthenticationControl_DivOfficePhoneCallDisplay');
+}
+
+function MultigateAuthenticationControl_SelectMobileCall() {
+    MultigateAuthenticationControl_SelectOption('MultigateAuthenticationControl_MobilePhoneCallRadioButtonTr', 'MultigateAuthenticationControl_DivMobilePhoneCallDisplay');
+}
+
+function MultigateAuthenticationControl_SelectMobileSMS() {
+    MultigateAuthenticationControl_SelectOption('MultigateAuthenticationControl_SMSRadioButtonTr', 'MultigateAuthenticationControl_DivMobileSMSDisplay');
+}
+
+function MultigateAuthenticationControl_SelectAltEmail() {
+    MultigateAuthenticationControl_SelectOption('MultigateAuthenticationControl_AltEmailRadioButtonTr', 'MultigateAuthenticationControl_DivAltEmailDisplay');
+}
+
+function MultigateAuthenticationControl_SelectMobileAppCode() {
+    MultigateAuthenticationControl_SelectOption('MultigateAuthenticationControl_AppCodeRadioButtonTr', 'MultigateAuthenticationControl_DivMobileAppCodeDisplay');
+}
+
+function MultigateAuthenticationControl_SelectMobileAppNotification() {
+    MultigateAuthenticationControl_SelectOption('MultigateAuthenticationControl_AppNotificationRadioButtonTr', 'MultigateAuthenticationControl_DivMobileAppNotificationDisplay');
+}
+
+function MultigateAuthenticationControl_SelectSecurityQuestions() {
+    MultigateAuthenticationControl_SelectOption('MultigateAuthenticationControl_SecurityQuestionsRadioButtonTr', 'MultigateAuthenticationControl_DivSecurityQuestionsDisplay');
+    //Disable next button
+    SecurityQuestionsGateControl_SetValidateButtonState('MultigateAuthenticationControl_DivSecurityQuestionsDisplay');
+    // Show contact admin link after a delay on select
+    MultigateAuthenticationControl_StartAuthenticationTimer(function () { SecurityQuestionsGateControl_DisplayTryAgainLinks('MultigateAuthenticationControl_DivSecurityQuestionsDisplay'); }, 15000);
+}
+
+function MultigateAuthenticationControl_RadioRowSelected(id) {
+    MultigateAuthenticationControl_ResetRadioButtonSelection();
+    MultigateAuthenticationControl_SetRadioButtonSelected(id);
+}
+
+function MultigateAuthenticationControl_ResetRadioButtonSelection() {
+    MultigateAuthenticationControl_SetRadioButtonNotSelected('MultigateAuthenticationControl_OfficePhoneCallRadioButtonTr');
+    MultigateAuthenticationControl_SetRadioButtonNotSelected('MultigateAuthenticationControl_MobilePhoneCallRadioButtonTr');
+    MultigateAuthenticationControl_SetRadioButtonNotSelected('MultigateAuthenticationControl_SMSRadioButtonTr');
+    MultigateAuthenticationControl_SetRadioButtonNotSelected('MultigateAuthenticationControl_AltEmailRadioButtonTr');
+    MultigateAuthenticationControl_SetRadioButtonNotSelected('MultigateAuthenticationControl_SecurityQuestionsRadioButtonTr');
+    MultigateAuthenticationControl_SetRadioButtonNotSelected('MultigateAuthenticationControl_AppNotificationRadioButtonTr');
+    MultigateAuthenticationControl_SetRadioButtonNotSelected('MultigateAuthenticationControl_AppCodeRadioButtonTr');
+}
+
+function MultigateAuthenticationControl_SetRadioButtonSelected(id) {
+    var targetRadioButton = $get(id);
+    if (targetRadioButton) {
+        targetRadioButton.style.backgroundColor = '#E0E0E0';
+    }
+}
+
+function MultigateAuthenticationControl_SetRadioButtonNotSelected(id) {
+    var targetRadioButton = $get(id);
+    if (targetRadioButton) {
+        targetRadioButton.style.backgroundColor = '#FFFFFF';
+    }
+}
+
+function MultigateAuthenticationControl_ResetAuthenticationDivs() {
+    CommonMultigate_MakeDivInvisible('MultigateAuthenticationControl_DivOfficePhoneCallDisplay');
+    CommonMultigate_MakeDivInvisible('MultigateAuthenticationControl_DivMobilePhoneCallDisplay');
+    CommonMultigate_MakeDivInvisible('MultigateAuthenticationControl_DivMobileSMSDisplay');
+    CommonMultigate_MakeDivInvisible('MultigateAuthenticationControl_DivAltEmailDisplay');
+    CommonMultigate_MakeDivInvisible('MultigateAuthenticationControl_DivSecurityQuestionsDisplay');
+    CommonMultigate_MakeDivInvisible('MultigateAuthenticationControl_DivMobileAppNotificationDisplay');
+    CommonMultigate_MakeDivInvisible('MultigateAuthenticationControl_DivMobileAppCodeDisplay');
+}
+
+function MultigateAuthenticationControl_StartAuthenticationTimer(callbackFunction, elapsedTime) {
+    _multigateAuthenticationControl_authenticationTimer = setInterval(callbackFunction, elapsedTime);
+}
+
+function MultigateAuthenticationControl_StopAuthenticationTimer() {
+    if (_multigateAuthenticationControl_authenticationTimer) {
+        clearInterval(_multigateAuthenticationControl_authenticationTimer);
+    }
+}
+
+function MultigateAuthenticationControl_SubmitCallValidation() {
+    var targetButton = $get('MultigateAuthenticationControl_ButtonPollForPhoneCallResponse');
+    if (targetButton) {
+        targetButton.click();
+    }
+}
+
+function MultigateAuthenticationControl_InitializeTimer() {
+    var timerFlag = $get('MultigateAuthenticationControl_EnableTimer');
+    MultigateAuthenticationControl_StopAuthenticationTimer();
+    if (timerFlag) {
+        if (timerFlag.value == 'officephonecall') {
+            MultigateAuthenticationControl_StartAuthenticationTimer(MultigateAuthenticationControl_SubmitCallValidation, 5000);
+        }
+        else if (timerFlag.value == 'mobilephonecall') {
+            MultigateAuthenticationControl_StartAuthenticationTimer(MultigateAuthenticationControl_SubmitCallValidation, 5000);
+        }        
+        else if (timerFlag.value == 'mobileappnotification') {
+            MultigateAuthenticationControl_StartAuthenticationTimer(MultigateAuthenticationControl_SubmitCallValidation, 5000);
+        }
+        else if (timerFlag.value == 'usersmsotp') {
+            MultigateAuthenticationControl_StartAuthenticationTimer(function () { OTPGateControl_DisplayTryAgainLinks('MultigateAuthenticationControl_DivMobileSMSDisplay'); }, 15000);
+        }
+        else if (timerFlag.value == 'useremailotp') {
+            MultigateAuthenticationControl_StartAuthenticationTimer(function () { OTPGateControl_DisplayTryAgainLinks('MultigateAuthenticationControl_DivAltEmailDisplay'); }, 15000);
+        }
+        else if (timerFlag.value == 'securityquestions') {
+            MultigateAuthenticationControl_StartAuthenticationTimer(function () { SecurityQuestionsGateControl_DisplayTryAgainLinks('MultigateAuthenticationControl_DivSecurityQuestionsDisplay'); }, 15000);
+        }
+        else if (timerFlag.value == 'mobileappcode') {
+            MultigateAuthenticationControl_StartAuthenticationTimer(function () { MobileAppOTPContro_DisplayTryAgainLinks('MultigateAuthenticationControl_DivMobileAppCodeDisplay'); }, 15000);
+        }
+    }
+}
+
+var multigateAuthenticationControl_ContactAdminClicked = 0;
+function MultigateAuthenticationControl_UserNotConfigured_ContactAdminClick(customEmail, customAdmin) {
+
+    if (null == customAdmin && null == customEmail) {
+        if (1 == multigateAuthenticationControl_ContactAdminClicked) {
+            return false;
+        }
+        else {
+            CommonMultigate_WaitDisplay(true, 'MultigateControl_WaitAnimationImage');
+            multigateAuthenticationControl_ContactAdminClicked = 1;
+        }
+    }
+
+    CommonMultigate_OpenCustomAdminLink(customEmail, customAdmin);
+}

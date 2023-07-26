@@ -1,0 +1,90 @@
+function buttonClicked(event, button, webhatButton) {
+    event.stopPropagation();
+    event.preventDefault();
+
+    switch (button.type) {
+        case "web_url":
+            window.open(button.url || button.payload, '_blank');
+            break;
+        case "postback":
+            webchatLoader.sendMessage(event, button.title, button.payload, true);
+            break;
+        case "account_link":
+        default:
+            window.open(button.url, '_blank');
+            break;
+    }
+}
+
+function addButtons(bubbleWrap, bubbleTyping, buttons) {
+    if (buttons && buttons.length > 0) {
+        var chatButtonContainer = document.createElement("div");
+        chatButtonContainer.classList.add("chat-button-container");
+        buttons.forEach(function (button) {
+            var webchatButton = document.createElement("button");
+            webchatButton.classList.add("chat-button");
+            webchatButton.innerText = button.title;
+            webchatButton.onclick = function (event) {
+                buttonClicked(event, button, webchatButton);
+            };
+            chatButtonContainer.appendChild(webchatButton);
+            bubbleWrap.insertBefore(chatButtonContainer, bubbleTyping);
+        })
+    }
+}
+
+function addPersistentMenuButtons(container, buttons) {
+    if (buttons && !isEmpty(buttons)) {
+        buttons.forEach(function (button) {
+
+            if (button.type === "web_url") {
+                var persistentMenuWebUrlButton = document.createElement("div");
+                persistentMenuWebUrlButton.className = "persistent-menu-web-url-button";
+                var webUrlText = document.createElement("div");
+                webUrlText.id = "webUrlText";
+                webUrlText.className = "web-url-text";
+                webUrlText.innerText = button.title;
+                var webUrlIcon = document.createElement("div");
+                webUrlIcon.id = "webUrlIcon";
+                webUrlIcon.className = "web-url-icon";
+                persistentMenuWebUrlButton.appendChild(webUrlText);
+                persistentMenuWebUrlButton.appendChild(webUrlIcon);
+                persistentMenuWebUrlButton.onclick = function (event) {
+                    buttonClicked(event, button, persistentMenuWebUrlButton);
+                };
+                container.appendChild(persistentMenuWebUrlButton);
+            } else {
+                var persistentMenuPayloadButton = document.createElement("div");
+                persistentMenuPayloadButton.className = "persistent-menu-payload-button";
+                persistentMenuPayloadButton.id = "persistentMenuButton";
+                persistentMenuPayloadButton.innerText = button.title;
+                persistentMenuPayloadButton.onclick = function (event) {
+                    buttonClicked(event, button, persistentMenuPayloadButton);
+                };
+                container.appendChild(persistentMenuPayloadButton);
+            }
+
+        });
+    }
+}
+
+function prepJS(options) {
+
+    var relativePath = options.cssbase || ".";
+
+    var appendJS = function (file) {
+        var script = document.createElement("script");
+        script.src = file + "?time=" + new Date().getTime();
+        script.type = "text/javascript";
+        document.getElementsByTagName("head")[0].appendChild(script);
+    };
+
+    appendJS(relativePath + "/webchat-base.js");
+
+}
+
+// exports for es6
+if (typeof exports !== "undefined") {
+    exports.quickReply = quickReply;
+    exports.prepJS = prepJS;
+}

@@ -1,0 +1,102 @@
+*{line-break:strict}
+
+body,input,select,textarea,button,legend{font-weight:normal;font-family:"Segoe UI-Regular-final","Segoe UI",Segoe,Tahoma,Helvetica,Arial,Sans-Serif;font-size:12px;line-height:19px;letter-spacing:.01em;color:#666666}
+span.requiredstar{font-weight:normal;font-family:"Segoe UI-Regular-final","Segoe UI",Segoe,Tahoma,Helvetica,Arial,Sans-Serif;font-size:12px;color:#a80f22}
+h1,h2,h3,h4,h5,h6{font-weight:normal;font-family:"SegoeUI-Light-final","Segoe UI Light","Segoe UI",Segoe,Tahoma,Helvetica,Arial,Sans-Serif;color:#333333;margin:0 0 0 0;cursor:default}
+h1{font-size:32px;line-height:normal;letter-spacing:-.01em; padding-left:0px; padding-right:0px}
+h2{font-size:22px;line-height:normal;letter-spacing:-.01em}
+h3{font-size:13px;line-height:normal;letter-spacing:-.01em}
+h6{line-height:normal}
+html,body{margin:0;padding:0;background-color:white;height:100%}
+a{color:#0072C6;text-decoration:none}
+a:hover{text-decoration:underline;cursor:pointer}
+
+a,
+ButtonAsLink {}
+
+a:hover,
+ButtonAsLink:hover {}
+
+@media (-ms-high-contrast) {
+    a,
+    ButtonAsLink {
+        color: ButtonText;
+        text-decoration: none;
+        background-color: ButtonFace;
+        border-color: ButtonText;        
+    }
+    a:hover,
+    ButtonAsLink:hover {color: ButtonText;text-decoration: underline;cursor: pointer;}
+    span.Button-disabled {
+        color:GrayText
+    }
+}
+
+p{margin:1ex 0 1ex 0}
+img{border-style:none}
+
+.input_text:focus,input.input_text_focus { border-color:#0072C6 }
+.input_text { border-color:#869E9E }
+
+input[type="text"],input[type="password"],input[type="file"],textarea{margin:1px 1px 2px 1px;border:solid 1px #869E9E;line-height:19px;height:21px;width:300px; padding-left:8px; padding-right:8px}
+input[type="text"]:disabled,input[type="password"]:disabled,textarea:disabled{color:#a6a6a6;background-color:#f2f7fc;height:18px;}
+button,input[type="button"],input[type="reset"],input[type="submit"]{padding:0 3px 0 3px;min-width:100px;height:30px;overflow:visible}
+input[type="text"]:focus,input[type="password"]:focus { border:solid 1px #0072C6 }
+
+
+a.Button-off,a.Button,a.Button:link,a.Button:visited,a.Button-focus,a.Button-focus:link,a.Button-focus:visited,a.Button-hover,a.Button-hover:link,a.Button-hover:visited,a.Button-active,a.Button-active:link,a.Button-active:visited{display:inline-block;text-decoration:none;font-size:13px;margin:5px 5px 5px 0px;min-width:70px;padding:0 0 0 0}
+a.Button span,a.Button-focus span,a.Button-active span{text-align:center;vertical-align:baseline;line-height:19pt;font-size:13px;border:1px solid;margin:0 0 0 0;padding:1px 12px 2px 12px;display:block;white-space:nowrap;color:#ffffff;background-color:#0072C6;border-color:#0072C6;margin-top: 6px;margin-bottom: 6px; height: 25px; vertical-align:bottom}
+a.Button-hover span{text-align:center;vertical-align:baseline;line-height:19pt;font-size:13px;border:1px solid;margin:0 0 0 0;padding:1px 12px 2px 12px;display:block;white-space:nowrap;color:#000000;background-color:#cde6f7;border-color:#0072C6;margin-top: 6px;margin-bottom: 6px; height: 25px; vertical-align:bottom}
+a.Button span,a.Button b,a.Button i,a.Button u{color:#ffffff;background-color:#0072C6;border-color:#0072C6;}
+a.Button-disabled span,span.Button-disabled span,span.Button-disabled b,span.Button-disabled i,span.Button-disabled u,span.Button-disabled span,span.Button-disabled{color:#c3cdd2;background-color:#f8fbfd;border-color:#d5dee2;text-align:center;line-height:20pt;vertical-align:center;white-space:nowrap;font-size:13px;border:1px solid;margin:6px 6px 6px 0px;padding:0px;min-width:70px; height:25px;}
+
+a.Button-off span{text-align:center;vertical-align:baseline;line-height:19pt;font-size:13px;border:1px solid;margin:0 0 0 0;padding:1px 12px 2px 12px;display:block;white-space:nowrap;color:#c3cdd2;background-color:#f8fbfd;border-color:#d5dee2;margin-top: 6px;margin-bottom: 6px; height: 25px; vertical-align:bottom}
+
+@media (-ms-high-contrast) {
+    a.Button-focus span{text-align:center;vertical-align:baseline;line-height:19pt;font-size:13px;border:1px solid;margin:0 0 0 0;padding:1px 12px 2px 12px;display:block;white-space:nowrap;background-color:ButtonFace;color:ButtonText;border-color:ButtonText;margin-top: 6px;margin-bottom: 6px; height: 25px; vertical-align:bottom}
+    a.Button-hover span{text-align:center;vertical-align:baseline;line-height:19pt;font-size:13px;border:1px solid;margin:0 0 0 0;padding:1px 12px 2px 12px;display:block;white-space:nowrap;background-color:ButtonFace;color:ButtonText;border-color:ButtonText;text-decoration:underline;margin-top: 6px;margin-bottom: 6px; height: 25px; vertical-align:bottom}
+}
+
+.ProgressBarContainer{border: 1px solid #c6dff3;padding: 0px;background-color: #ffffff;height: 16px;margin:1px 1px 1px 1px;}
+.ProgressBarFill{padding:0px;margin:0px;height:100%;color:#ffffff;font-size:9pt;line-height:normal;letter-spacing:.025em;white-space:nowrap}
+.ProgressBar-Healthy{background-color:#548105}
+.ProgressBar-Caution{background-color:#ec6b00}
+.ProgressBar-Urgent{background-color:#e70000}
+
+.content { margin: 30px; padding-top:10px; padding-bottom:60px; /*margin + footer height*/ }
+.container { min-height:100%; position:relative; }
+.subtletext { color:#a6a6a6; }
+h2.title { margin-bottom: 3px; }
+.errorClass { color: #B30000; }
+.padding10 { padding: 10px; }
+.paddingtop14 { padding-top: 14px; }
+.padding20 { padding: 20px; }
+.marginTB20 { margin: 20px 0px; }
+.lineheight25 { line-height: 25px; }
+.hidden { display:none }
+.hideAdditionalDetailsButtonLink { display: none}
+
+.updateProgress { display: inline; width: 150px; height: 32px; padding-left:10px; padding-right:10px position: absolute; }
+#LiveCaptchaAudioControlContainer { vertical-align:middle; }
+.LiveCaptchaAudioPlayerIE { max-height: 44px; }
+.LiveCaptchaAudioPlayer { max-height: 20px; }
+.csshInput10 { margin:1px 1px 2px 1px !important; border-width: 1px !important; line-height:normal; height:21px; width:300px !important; padding:0px 8px 0px 8px !important; }
+.TOSBody { width: 900px; height: 400px; overflow-x: hidden; overflow-y: scroll; padding: 10px; border:1px solid #a6a6a6; }
+.valignmiddle { vertical-align: middle; }
+.radioButtonMoreInformation { visibility: hidden; }
+
+.footer .title {color: #666666; height: 30px; background-color: #eaecee}
+footer:link{color: #666666}
+.footer a{color: #666666}
+.header .logo{max-height: 100%; height: auto; padding-top: 30px; padding-left: 30px;}
+
+.HelpCallout div,.HelpCallout td{border: solid 1px #98bcd8; background-color: white;}
+.HelpCallout > table{border: none 0px; background-color: transparent; padding: 0px; margin-left: 5px; margin-right: 5px;}
+.HelpCallout td.Close{	min-width: 15px; vertical-align: top; padding: 0px; margin: 0px; border-left: none !important;}
+.HelpCallout td.Close > div{border: none !important; text-align: center; cursor: pointer;}
+.HelpCallout td.Close > div,.HelpCallout td.PosBottom > div,.HelpCallout td.PosTop > div,.HelpCallout td.PosLeft > div,.HelpCallout td.PosRight > div{margin-right: 8px; margin-top: 8px; padding: 0px; width: auto;}
+
+.preview-badge-ontitle {top: -23px; padding: 1px 10px 2px 10px; display: none; background-color: transparent; color: #8bc53f; font: bold 9px/9px "Segoe UI"; text-transform: uppercase; display: inline-block; position: relative;}
+.MultigateHeaders {font-weight:normal;font-family:"Segoe UI-Regular-final","Segoe UI",Segoe,Tahoma,Helvetica,Arial,Sans-Serif;font-size:15px;line-height:19px;letter-spacing:.01em;color:#555555;}
+.MultigateHeadersBold {font-weight:bold;font-family:"Segoe UI-Regular-final","Segoe UI",Segoe,Tahoma,Helvetica,Arial,Sans-Serif;font-size:15px;line-height:19px;letter-spacing:.01em;color:#555555;}
+.MultigateRadioButton input{padding:10px;margin-top:10px}

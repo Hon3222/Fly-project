@@ -1,0 +1,177 @@
+﻿//------------------------------------------------------------
+// Copyright (c) Microsoft Corporation.  All rights reserved.
+//------------------------------------------------------------
+function CommonMultigate_SetDisplayAttribute(targetDiv, displayAttributeValue) {
+    if (targetDiv) {
+        targetDiv.style.display = displayAttributeValue;
+    }
+}
+
+function CommonMultigate_SetButtonState(targetButton, isDisabled) {
+    var targetButtonDisabledId = targetButton.id + "_disabled";
+    var targetButtonDisabled = GetElementInContainer(targetButton.parentNode, targetButtonDisabledId);
+    if (targetButton) {
+        if (isDisabled) {
+            targetButton.style.display = 'none';
+            targetButtonDisabled.style.display = 'inline-block';
+        }
+        else {
+            targetButton.style.display = 'inline-block';
+            targetButtonDisabled.style.display = 'none';
+        }
+    }
+}
+
+function CommonMultigate_SetLinkButtonState(button, isDisabled) {
+    if (isDisabled) {
+        CommonMultigate_SetDisplayAttribute(button, 'none');
+    }
+    else {
+        CommonMultigate_SetDisplayAttribute(button, 'inline-block');
+    }
+}
+
+function CommonMultigate_SetTextBoxState(textBox, isDisabled) {
+    if (textBox) {
+        textBox.readOnly = isDisabled;
+    }
+}
+
+function CommonMultigate_MakeLabelVisible(id) {
+    target = $get(id);
+    CommonMultigate_SetDisplayAttribute(target, 'inline');
+}
+
+function CommonMultigate_MakeLabelInvisible(id) {
+    target = $get(id);
+    CommonMultigate_SetDisplayAttribute(target, 'none');
+}
+
+function CommonMultigate_MakeDivVisible(id) {
+    target = $get(id);
+    CommonMultigate_SetDisplayAttribute(target, 'inline');
+}
+
+function CommonMultigate_MakeDivInvisible(id) {
+    target = $get(id);
+    CommonMultigate_SetDisplayAttribute(target, 'none');
+}
+
+function CommonMultigate_WaitDisplay(isEnabled, waitDisplay) {
+    if (waitDisplay) {
+        if (isEnabled) {
+            waitDisplay.style.visibility = 'visible';
+        }
+        else {
+            waitDisplay.style.visibility = 'hidden';
+        }
+    }
+}
+
+function CommonMultigate_OpenCustomAdminLink(adminEmail, adminTargetUrl) {
+    if (adminEmail && adminEmail != '') {
+        CommonMultigate_OpenSendEmail(adminEmail);
+    }
+    else if (adminTargetUrl && adminTargetUrl != '') {
+        CommonMultigate_OpenInNewTab(adminTargetUrl);
+    }
+}
+
+function CommonMultigate_OpenInNewTab(url) {
+    var targetWindow = window.open(url, '_blank');
+    if (targetWindow) {
+        targetWindow.focus();
+    }
+}
+
+function CommonMultigate_OpenSendEmail(email) {
+    var targetReference = 'mailto:' + email;
+    var hiddenAnchor = document.getElementById('MultigateAuthenticationControl_Hidden_Anchor');
+    if (hiddenAnchor && hiddenAnchor.click) {
+        hiddenAnchor['href'] = targetReference;        
+        hiddenAnchor.click();        
+    }    
+}
+
+function CommonMultigate_SetElementValue(containderId, elementId, value) {
+    var element = GetElementInContainerByContainerID(containderId, elementId);
+    if (element) {
+        element.value = value;
+    }
+}
+
+function CommonMultigate_DisableOptionRadioButtons() {
+    var radioTable = document.getElementById('MultigateAuthenticationControl_RadioTable');
+    if (radioTable) {
+        var radioButtons = radioTable.getElementsByTagName('input');
+        if (radioButtons) {
+            for (var radioIndex = 0; radioIndex < radioButtons.length; radioIndex++) {
+                radioButtons[radioIndex].disabled = true;
+            }
+        }
+    }
+}
+
+function GetElementInContainer(container, childID) {
+    if (container) {
+        var elements = container.getElementsByTagName("*");
+        for (var i = 0; i < elements.length; i++) {
+            if (elements[i].id == childID)
+                return elements[i];
+        }
+    }
+    return null;
+}
+
+function GetElementInContainerByContainerID(containerID, childID) {
+    var containerElement = document.getElementById(containerID);
+    if (containerElement) {
+        return GetElementInContainer(containerElement, childID);
+    }
+    return null;
+}
+
+function GateControl_ValidateTextBoxAndSetButtonStateButton_ClientClick(regexValidationTextBox, masterDivId, button, hiddenFieldElement, regex) {
+    if (regexValidationTextBox) {
+        regexValidationTextBox.style.color = '#666666';
+
+        if (!GateControl_ValidateTextBoxAndSetButtonStateButton(regexValidationTextBox, masterDivId, button, hiddenFieldElement, regex)) {
+            regexValidationTextBox.value = '';
+        }
+    }
+}
+
+function GateControl_ValidateTextBoxAndSetButtonStateButton_OnPaste(regexValidationTextBox, masterDivId, button, hiddenFieldElement, regex) {
+    if (regexValidationTextBox) {
+        setTimeout(function () {
+            regexValidationTextBox.value = regexValidationTextBox.value.trim();
+            GateControl_ValidateTextBoxAndSetButtonStateButton(regexValidationTextBox, masterDivId, button, hiddenFieldElement, regex);
+        }, 100);
+    }
+}
+
+function GateControl_ValidateTextBoxAndSetButtonStateButton_ClientOnKeyUp(regexValidationTextBox, masterDivId, button, hiddenFieldElement, regex) {
+    GateControl_ValidateTextBoxAndSetButtonStateButton(regexValidationTextBox, masterDivId, button, hiddenFieldElement, regex);
+}
+
+function GateControl_ValidateTextBoxAndSetButtonStateButton(textBox, masterDivId, button, hiddenFieldElement, regex) {
+    if (textBox) {
+        var ValidateButton = GetElementInContainerByContainerID(masterDivId, button);
+
+        if (GateControl_IsTextBoxDataValid(textBox, regex)) {
+            CommonMultigate_SetButtonState(ValidateButton, false);
+            CommonMultigate_SetElementValue(masterDivId, hiddenFieldElement, 'true');
+            return true;
+        }
+        else {
+            CommonMultigate_SetButtonState(ValidateButton, true);
+            CommonMultigate_SetElementValue(masterDivId, hiddenFieldElement, 'false');
+        }
+    }
+    return false;
+}
+
+function GateControl_IsTextBoxDataValid(textBox, regex) {
+    _GateControl_TextBoxValidationRegex = new RegExp(regex);
+    return _GateControl_TextBoxValidationRegex.test(textBox.value);
+}

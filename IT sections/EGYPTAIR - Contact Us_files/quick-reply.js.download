@@ -1,0 +1,92 @@
+function removeElementUsingId(id) {
+    var element = document.getElementById(id);
+    if (element) {
+        element.parentNode.removeChild(element);
+    }
+}
+
+var sendLocation = function (position) {
+    webchatLoader.sendMessage(null, "my location", position, true);
+};
+
+var sendErrorPrompt = function (error) {
+    console.warn('ERROR:', error.code, ': ', error.message);
+};
+
+var getLocation = function () {
+    var options = {
+        enableHighAccuracy: false,
+        timeout: 5000,
+        maximumAge: 0
+    };
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(sendLocation, sendErrorPrompt, options);
+    } else {
+        var error = {
+            code: 0,
+            message: "Sorry, your browser does not support geolocation"
+        };
+        sendErrorPrompt(error);
+    }
+
+};
+
+function isEmpty(object) {
+    return Object.keys(object).every(function (k) {
+        return !Object.keys(object[k]).length
+    })
+}
+
+function addQuickReplies(bubbleWrap, bubbleTyping, quickReplies) {
+    if (quickReplies && !isEmpty(quickReplies)) {
+        removeElementUsingId("quick-replies-container");
+        var quickRepliesContainer = document.createElement("div");
+        quickRepliesContainer.classList.add("quick-replies-container");
+        quickRepliesContainer.id = "quick-replies-container";
+        quickReplies.forEach(function (quickReplyData) {
+            var quickReply = document.createElement("div");
+            quickReply.classList.add("quick-reply");
+            switch (quickReplyData.contentType) {
+                case "location":
+                    // Uncomment this when you want to enable location quick replies
+                    // quickReply.innerText = quickReplyData.title;
+                    // quickReply.value = quickReplyData.payload;
+                    // quickReply.addEventListener("click", getLocation);
+                    return; //Remove this line to enable location quick replies
+                    break;
+                case "text":
+                    quickReply.innerText = quickReplyData.title;
+                    quickReply.addEventListener("click", function (event) {
+                        webchatLoader.sendMessage(event, quickReplyData.title, quickReplyData.payload, true);
+                        //EventListeners are removed onClick by removeElement
+                    });
+                    break;
+                default:
+                    return;
+            }
+            quickRepliesContainer.appendChild(quickReply);
+        });
+        bubbleWrap.insertBefore(quickRepliesContainer, bubbleTyping);
+    }
+}
+
+function prepJS(options) {
+
+    var relativePath = options.cssbase || ".";
+
+    var appendJS = function (file) {
+        var script = document.createElement("script");
+        script.src = file + "?time=" + new Date().getTime();
+        script.type = "text/javascript";
+        document.getElementsByTagName("head")[0].appendChild(script);
+    };
+
+    appendJS(relativePath + "/webchat-base.js");
+
+}
+
+// exports for es6
+if (typeof exports !== "undefined") {
+    exports.quickReply = quickReply;
+    exports.prepJS = prepJS;
+}

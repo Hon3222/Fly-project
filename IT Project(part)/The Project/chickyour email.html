@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title> chick your email</title>
+		<style> 
+			body{
+				background-image: url("mmm.jpg");
+                background-repeat: no-repeat;
+			}
+			#h11{
+				text-align: center;
+				color:black;
+				background-color:white;
+			}
+			#h21{
+				font-style: oblique;
+
+			}
+			#demo{
+				font-size: larger;
+				font-style: oblique;
+				padding: 2px;
+			}
+			div{
+				width: 900px;
+                    height: 600px;
+                    border: 10px ;
+                    padding: 30px;
+                    margin-left: 7%;
+			}
+			#sub1{
+				height: 30px;
+				width: 100px;
+				font-size: larger;
+			}
+			#txt{
+				height: 300px;
+				width: 600px;
+				font-size: larger;
+			}
+			
+		</style>
+	</head>
+	<body>
+		<h1 id="h11"> TEXT YOU </h1>
+			<h2 id="h21"> we send a new password for you  </h2>
+			<div> <p id="demo"> dont forget to give us your feedback about this web site : </p>
+		
+				<form action="">
+					  <textarea  name="message" rows="10" cols="30" id="txt">This web site is..</textarea>
+					  <br><br>
+					  <button type="button" onclick="myFunction()" id="sub1"> submit</button>
+					  <script>
+						  function myFunction(){
+							  document.getElementById("demo").innerHTML="we record your feedback";
+						  }
+					  </script>
+				</form>
+			 </div>
+	</body>
+
+		
+	
+</html>

@@ -1,0 +1,41 @@
+﻿
+
+function GetCookieValue(cookieName)
+{
+    if (document.cookie == undefined || document.cookie == "")
+        return "";
+
+    var name = cookieName + "=";
+    var cookieArray = document.cookie.split(';');
+    for (var i = 0; i < cookieArray.length; i++)
+    {
+        var clientCookie = cookieArray[i].trim();
+        if (clientCookie.indexOf(name) == 0)
+        {
+            return clientCookie.substring(name.length, clientCookie.length);
+        }
+    }
+    return "";
+}
+
+function DeleteCookie(name)
+{
+    if (GetCookieValue(name).length > 0)
+    {
+        document.cookie = name + "=" + ";expires=Thu, 01 Jan 2000 00:00:01 GMT";
+    }
+}
+
+function ToggleAdditionalDetailsSection(buttonLinkContainer, elementId) {
+    var element = $get(elementId);
+
+    if (element.style.display === "none" || element.style.display === "") {
+        buttonLinkContainer.getElementsByClassName("showAdditionalDetailsButtonLink")[0].style.display = "none";
+        buttonLinkContainer.getElementsByClassName("hideAdditionalDetailsButtonLink")[0].style.display = "block";
+    } else {
+        buttonLinkContainer.getElementsByClassName("showAdditionalDetailsButtonLink")[0].style.display = "block";
+        buttonLinkContainer.getElementsByClassName("hideAdditionalDetailsButtonLink")[0].style.display = "none";
+    }
+
+    $(element).slideToggle("fast");
+}

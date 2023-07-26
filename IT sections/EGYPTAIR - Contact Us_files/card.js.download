@@ -1,0 +1,239 @@
+var addCard = function(element, labelsList, index) {
+    if(element) {
+        var cardContainer = document.createElement("div");
+        cardContainer.classList.add("airoffer-card-container");
+
+        var card = document.createElement("div");
+        var cardIndex = "card"+index;
+        addIdToElement(card, cardIndex);
+        card.classList.add("card");
+        cardContainer.appendChild(card);
+
+        var cardTitleContainer = document.createElement("div");
+        cardTitleContainer.classList.add("card-title-container");
+        card.appendChild(cardTitleContainer);
+
+        var cardTitle = document.createElement("div");
+        cardTitle.classList.add("card-title");
+        cardTitle.innerText = element.title;
+        cardTitleContainer.appendChild(cardTitle);
+
+        if(element.subtitle && !element.bounds) {
+            var cardSubtitle = document.createElement("div");
+            cardSubtitle.classList.add("card-subtitle");
+            cardSubtitle.innerText = element.subtitle;
+            cardTitleContainer.appendChild(cardSubtitle);
+        }
+
+        var cardDetailsContainer = document.createElement("div");
+        cardDetailsContainer.classList.add("card-details-container");
+        card.appendChild(cardDetailsContainer);
+
+        if(element.bounds && element.bounds.length > 0) {
+            var cardHeader = document.createElement("div");
+            cardHeader.classList.add("card-header");
+            card.appendChild(cardHeader);
+
+            var cardHeaderOrigin = document.createElement("div");
+            cardHeaderOrigin.classList.add("card-header-origin");
+            cardHeader.appendChild(cardHeaderOrigin);
+
+            var cardHeaderIcon = document.createElement("div");
+            cardHeaderIcon.classList.add("card-header-icon");
+            cardHeaderIcon.classList.add(element.bounds.length === 2 ? "card-header-arrows-icon" : "card-header-arrow-icon");
+            cardHeader.appendChild(cardHeaderIcon);
+
+            var cardHeaderDestination = document.createElement("div");
+            cardHeaderDestination.classList.add("card-header-destination");
+            cardHeader.appendChild(cardHeaderDestination);
+
+            var cardHeaderOriginCode = document.createElement("div");
+            cardHeaderOriginCode.classList.add("card-header-origin-code");
+            cardHeaderOriginCode.innerText = element.bounds[0].originLocationCode ? element.bounds[0].originLocationCode : "-";
+            cardHeaderOrigin.appendChild(cardHeaderOriginCode);
+
+            var cardHeaderOriginCity = document.createElement("div");
+            cardHeaderOriginCity.classList.add("card-header-origin-city");
+            cardHeaderOriginCity.innerText = element.bounds[0].originCity ? getTitleCase(element.bounds[0].originCity) : "-";
+            cardHeaderOrigin.appendChild(cardHeaderOriginCity);
+
+            var cardHeaderDestinationCode = document.createElement("div");
+            cardHeaderDestinationCode.classList.add("card-header-destination-code");
+            cardHeaderDestinationCode.innerText = element.bounds[0].destinationLocationCode? element.bounds[0].destinationLocationCode : "-";
+            cardHeaderDestination.appendChild(cardHeaderDestinationCode);
+
+            var cardHeaderDestinationCity = document.createElement("div");
+            cardHeaderDestinationCity.classList.add("card-header-destination-city");
+            cardHeaderDestinationCity.innerText = element.bounds[0].destinationCity? getTitleCase(element.bounds[0].destinationCity) : "-";
+            cardHeaderDestination.appendChild(cardHeaderDestinationCity);
+            
+            element.bounds.forEach(function(bound, index){
+                var cardBound = document.createElement("div");
+                cardBound.classList.add("card-bound");
+                cardDetailsContainer.appendChild(cardBound);
+
+                if(element.bounds.length === 2) {
+                    var cardBoundLabel = document.createElement("div");
+                    cardBoundLabel.classList.add("card-bound-label");
+                    cardBoundLabel.innerText = index === 0 ? labelsList.DEPARTURE.toUpperCase() : labelsList.RETURN.toUpperCase();
+                    cardBound.appendChild(cardBoundLabel);
+                }
+
+                var cardBoundDetails = document.createElement("div");
+                cardBoundDetails.classList.add("card-bound-details");
+                cardBound.appendChild(cardBoundDetails);
+
+                //left
+                var cardBoundDetailsDeparture = document.createElement("div");
+                cardBoundDetailsDeparture.classList.add("card-bound-details-departure");
+                cardBoundDetails.appendChild(cardBoundDetailsDeparture);
+
+                var cardBoundDetailsDepartureCode = document.createElement("div");
+                cardBoundDetailsDepartureCode.classList.add("card-bound-details-code");
+                cardBoundDetailsDepartureCode.innerText = element.bounds[index].originLocationCode ? element.bounds[index].originLocationCode : "-";
+                cardBoundDetailsDeparture.appendChild(cardBoundDetailsDepartureCode);
+
+                var cardBoundDetailsDepartureTime = document.createElement("div");
+                cardBoundDetailsDepartureTime.classList.add("card-bound-details-time");
+                cardBoundDetailsDepartureTime.innerText = element.bounds[index].beginDateTime ? getTime(element.bounds[index].beginDateTime) : "-";
+                cardBoundDetailsDeparture.appendChild(cardBoundDetailsDepartureTime);
+
+                var cardBoundDetailsDepartureDate = document.createElement("div");
+                cardBoundDetailsDepartureDate.classList.add("card-bound-details-date");
+                cardBoundDetailsDepartureDate.innerText = element.bounds[index].beginDateTime ? getDate(element.bounds[index].beginDateTime) : "-";
+                cardBoundDetailsDeparture.appendChild(cardBoundDetailsDepartureDate);
+
+                //centre
+                var cardBoundDetailsFlight = document.createElement("div");
+                cardBoundDetailsFlight.classList.add("card-bound-details-flight");
+                cardBoundDetails.appendChild(cardBoundDetailsFlight);
+
+                var cardBoundDetailsFlightDuration = document.createElement("div");
+                cardBoundDetailsFlightDuration.classList.add("card-bound-details-duration");
+                cardBoundDetailsFlightDuration.innerText = element.bounds[index].duration ? getDuration(element.bounds[index].duration) : "-";
+                cardBoundDetailsFlight.appendChild(cardBoundDetailsFlightDuration);
+
+                var cardBoundDetailsFlightIcon = document.createElement("div");
+                cardBoundDetailsFlightIcon.classList.add("card-bound-details-icon");
+                cardBoundDetailsFlight.appendChild(cardBoundDetailsFlightIcon);
+
+                var cardBoundDetailsFlightStops = document.createElement("div");
+                cardBoundDetailsFlightStops.classList.add("card-bound-details-stops");
+                cardBoundDetailsFlightStops.innerText = element.bounds[index].stopInfo !== undefined ? getStopsLabel(element.bounds[index].stopInfo) : "-";
+                cardBoundDetailsFlight.appendChild(cardBoundDetailsFlightStops);
+
+                //right
+                var cardBoundDetailsArrival = document.createElement("div");
+                cardBoundDetailsArrival.classList.add("card-bound-details-arrival");
+                cardBoundDetails.appendChild(cardBoundDetailsArrival);
+
+                var cardBoundDetailsArrivalCode = document.createElement("div");
+                cardBoundDetailsArrivalCode.classList.add("card-bound-details-code");
+                cardBoundDetailsArrivalCode.innerText = element.bounds[index].destinationLocationCode ? element.bounds[index].destinationLocationCode : "-";
+                cardBoundDetailsArrival.appendChild(cardBoundDetailsArrivalCode);
+
+                var cardBoundDetailsArrivalTime = document.createElement("div");
+                cardBoundDetailsArrivalTime.classList.add("card-bound-details-time");
+                cardBoundDetailsArrivalTime.innerText = element.bounds[index].endDateTime ? getTime(element.bounds[index].endDateTime) : "-";
+                cardBoundDetailsArrival.appendChild(cardBoundDetailsArrivalTime);
+
+                var cardBoundDetailsArrivalDate = document.createElement("div");
+                cardBoundDetailsArrivalDate.classList.add("card-bound-details-date");
+                cardBoundDetailsArrivalDate.innerText = element.bounds[index].endDateTime ? getDate(element.bounds[index].endDateTime) : "-";
+                cardBoundDetailsArrival.appendChild(cardBoundDetailsArrivalDate);
+            });
+        } else {
+            cardContainer.classList.remove("airoffer-card-container");
+            cardContainer.classList.add("simple-card-container");
+        }
+
+        if(element.buttons && element.buttons.length > 0) {
+            var cardButtonContainer = document.createElement("div");
+            cardButtonContainer.classList.add("card-button-container");
+            cardDetailsContainer.appendChild(cardButtonContainer);
+
+            element.buttons.forEach(function (button) {
+                var cardButton = document.createElement("button");
+                cardButton.classList.add("card-button");
+                cardButton.innerText = button.title;
+                cardButton.onclick = function (event) {
+                    buttonClicked(event, button, cardButton);
+                };
+                cardButtonContainer.appendChild(cardButton);
+            })
+        }
+        return cardContainer;
+    }
+};
+
+var getTime = function(ISOString) {
+    if(ISOString) {
+        var date = ISOString.split(/[^0-9]/)
+        var hours = replaceUndefined(date[3]);
+        var minutes = replaceUndefined(date[4]);
+        return hours + ":" + minutes;
+    }
+};
+
+var getDate = function(ISOString) {
+    if(ISOString) {
+        var date = ISOString.split(/[^0-9]/)
+        var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        return replaceUndefined(date[2]) + " " + replaceUndefined(months[parseInt(date[1])-1]) + " " + replaceUndefined(date[0]);
+    }
+};
+var replaceUndefined = function (val) {
+    if (val===undefined)
+        return "-";
+    return val;
+}
+function getDuration(seconds) {
+    var output = "";
+    var days = parseInt(seconds / 86400);
+    if(days) {
+        output = days + "d";
+        return output;
+    }
+    var hours = parseInt(seconds / 3600);
+    var minutes = parseInt((seconds - hours * 3600) / 60);
+
+    output += hours ? hours + "h" : "";
+    output += minutes ? minutes + "m" : "";
+    return output;
+}
+
+function getStopsLabel(stopInfo) {
+    switch(stopInfo) {
+        case 0:
+            return labelsList.NONSTOP ? labelsList.NONSTOP : "Nonstop";
+        case 1:
+            return labelsList.STOP ? stopInfo + " " + labelsList.STOP : stopInfo + " stop";
+        default:
+            return labelsList.STOPS ? stopInfo + " " + labelsList.STOPS : stopInfo + " stops";
+    }
+}
+
+
+function prepJS(options) {
+    var relativePath = options.cssbase || ".";
+
+    var appendJS = function (file) {
+        var script = document.createElement("script");
+        script.src = file + "?time=" + new Date().getTime();
+        script.type = "text/javascript";
+        document.getElementsByTagName("head")[0].appendChild(script);
+    };
+
+    appendJS(relativePath + "/webchat-base.js");
+}
+
+//Add ID. For Automation use
+function addIdToElement(element, id) {
+    element.id = id;
+}
+
+// exports for es6
+if (typeof exports !== "undefined") {
+    exports.itinerary = itinerary;
+    exports.prepJS = prepJS;
+}

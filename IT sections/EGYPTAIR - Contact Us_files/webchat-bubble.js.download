@@ -1,0 +1,30 @@
+function webchatBubble(container, self, options){
+
+    webchatUrl = options.webhookUrl;
+    var pathArray = webchatUrl.split( '/');
+    var protocol = pathArray[0];
+    var host = pathArray[2];
+    var basePath = protocol + '//' + host + "/airlinebot/v2/webchat/";
+
+    readTextFile(basePath + "version.json",function (jsonResponse) {
+        var json = JSON.parse(jsonResponse);
+        var script = document.createElement("script");
+        script.src = basePath + "webchat/scripts/webchat-bundle.js?time=" + json.currentversion;
+        script.type = "text/javascript";
+        script.onload = function(){
+            var chatContainer = new webchatLoader(container, self, options);
+        };
+        document.head.appendChild(script);
+    });
+}
+
+function readTextFile(file, callback) {
+    var rawFile = new XMLHttpRequest();
+    rawFile.open("GET", file, true);
+    rawFile.onreadystatechange = function () {
+        if (rawFile.readyState === 4 && rawFile.status == "200") {
+            callback(rawFile.responseText);
+        }
+    };
+    rawFile.send(null);
+}

@@ -1,0 +1,205 @@
+function addItinerary(bubbleWrap, bubbleTyping, payload, labelsList, itineraryStatus) {
+    if(payload && payload.template_type === "airline_itinerary") {
+        var itineraryContainer = document.createElement("div");
+        itineraryContainer.classList.add("itinerary-container");
+
+        var itinerary = document.createElement("div");
+        itinerary.classList.add("itinerary");
+        itineraryContainer.appendChild(itinerary);
+
+        var itineraryHeader = document.createElement("div");
+        itineraryHeader = getItineraryStatus(itineraryHeader, itineraryStatus);
+        itinerary.appendChild(itineraryHeader);
+
+        var itineraryHeaderIcon = document.createElement("div");
+        itineraryHeaderIcon.classList.add("itinerary-header-icon");
+        itineraryHeader.appendChild(itineraryHeaderIcon);
+
+        var itineraryHeaderInfo = document.createElement("div");
+        itineraryHeaderInfo.classList.add("itinerary-header-info");
+        itineraryHeader.appendChild(itineraryHeaderInfo);
+
+        var itineraryHeaderInfoLabel = document.createElement("div");
+        itineraryHeaderInfoLabel.classList.add("itinerary-header-info-label");
+        itineraryHeaderInfo.appendChild(itineraryHeaderInfoLabel);
+        itineraryHeaderInfoLabel.innerText = labelsList.BOOKING_NUMBER? labelsList.BOOKING_NUMBER : "Booking Number";
+
+        var itineraryHeaderInfoValue = document.createElement("div");
+        itineraryHeaderInfoValue.classList.add("itinerary-header-info-value");
+        itineraryHeaderInfo.appendChild(itineraryHeaderInfoValue);
+        itineraryHeaderInfoValue.innerText = payload.pnr_number ? payload.pnr_number : "-";
+
+        var itineraryBody = document.createElement("div");
+        itineraryBody.classList.add("itinerary-body");
+        itinerary.appendChild(itineraryBody);
+
+        //bound information
+        for(i = 0; payload.bound_info && i < payload.bound_info.length; i++) {
+            //create elements and assign classes
+            var itineraryBodyBound = document.createElement("div");
+            itineraryBodyBound.classList.add("itinerary-body-bound");
+
+            var departure = document.createElement("div");
+            departure.classList.add("departure");
+            itineraryBodyBound.appendChild(departure);
+
+            var departureCity = document.createElement("div");
+            departureCity.classList.add("departure-city");
+            departureCity.classList.add("departure-city-truncate");
+            departureCity.innerText = payload.bound_info[i].originCity ? getTitleCase(payload.bound_info[i].originCity) : "-";
+            departure.appendChild(departureCity);
+
+            var departureAirportCode = document.createElement("div");
+            departureAirportCode.classList.add("depature-airport-code");
+            departureAirportCode.innerText = payload.bound_info[i].originLocationCode ? payload.bound_info[i].originLocationCode : "-";
+            departure.appendChild(departureAirportCode);
+
+            var departureTime = document.createElement("div");
+            departureTime.classList.add("departure-time");
+            departureTime.innerText = payload.bound_info[i].beginDateTime ? getTime(payload.bound_info[i].beginDateTime) : "-";
+            departure.appendChild(departureTime);
+
+            var departureDate = document.createElement("div");
+            departureDate.classList.add("departure-date");
+            departureDate.innerText = payload.bound_info[i].beginDateTime ? getDate(payload.bound_info[i].beginDateTime) : "-";
+            departure.appendChild(departureDate);
+
+
+            var flightStopsLabel = document.createElement("div");
+            flightStopsLabel.classList.add("flight-stops-label");
+            flightStopsLabel.innerText = labelsList.STOPS ? labelsList.STOPS : "Stops";
+            departure.appendChild(flightStopsLabel);
+
+            var flightStops = document.createElement("div");
+            flightStops.classList.add("flight-stops");
+            if(payload.bound_info[i].flights) {
+                if(payload.bound_info[i].flights.length === 1) {
+                    flightStops.innerText = labelsList.NONSTOP ? labelsList.NONSTOP : "Nonstop";
+                } else {
+                    flightStops.innerText = payload.bound_info[i].flights.length - 1;
+                }
+            } else {
+                flightStops.innerText = "-";
+            }
+            departure.appendChild(flightStops);
+
+            var flight = document.createElement("div");
+            flight.classList.add("flight");
+            itineraryBodyBound.appendChild(flight);
+
+            var flightIcon = document.createElement("div");
+            flightIcon.classList.add("flight-icon");
+            flight.appendChild(flightIcon);
+
+            var arrival = document.createElement("div");
+            arrival.classList.add("arrival");
+            itineraryBodyBound.appendChild(arrival);
+
+            var arrivalCity = document.createElement("div");
+            arrivalCity.classList.add("arrival-city");
+            arrivalCity.classList.add("arrival-city-truncate");
+            arrivalCity.innerText = payload.bound_info[i].destinationCity ? getTitleCase(payload.bound_info[i].destinationCity) : "-";
+            arrival.appendChild(arrivalCity);
+
+            var arrivalAirportCode = document.createElement("div");
+            arrivalAirportCode.classList.add("arrival-airport-code");
+            arrivalAirportCode.innerText = payload.bound_info[i].destinationLocationCode ? payload.bound_info[i].destinationLocationCode : "-";
+            arrival.appendChild(arrivalAirportCode);
+
+            var arrivalTime = document.createElement("div");
+            arrivalTime.classList.add("arrival-time");
+            arrivalTime.innerText = payload.bound_info[i].endDateTime ? getTime(payload.bound_info[i].endDateTime) : "-";
+            arrival.appendChild(arrivalTime);
+
+            const milliSecondsPerDay = 1000 * 60 * 60 * 24;
+            const beginDate = new Date(payload.bound_info[i].beginDateTime.split("T")[0]);
+            const endDate = new Date(payload.bound_info[i].endDateTime.split("T")[0]);
+            var durationDays = Math.floor((endDate - beginDate) / milliSecondsPerDay);
+
+            var durationInDays = document.createElement("sup");
+            durationInDays.classList.add("duration-days");
+            durationInDays.innerText = durationDays !== 0 ? '+' + durationDays + 'd': '';
+            arrivalTime.appendChild(durationInDays);
+
+            var arrivalDate = document.createElement("div");
+            arrivalDate.classList.add("arrival-date");
+            arrivalDate.innerText = payload.bound_info[i].endDateTime ? getDate(payload.bound_info[i].endDateTime) : "-";
+            arrival.appendChild(arrivalDate);
+
+            var travelClassLabel = document.createElement("div");
+            travelClassLabel.classList.add("travel-class-label");
+            travelClassLabel.innerText = labelsList.CLASS ? labelsList.CLASS : "Class";
+            arrival.appendChild(travelClassLabel);
+
+            var travelClass = document.createElement("div");
+            travelClass.classList.add("travel-class");
+            travelClass.innerText = payload.bound_info[i].travelClass ? getTitleCase(payload.bound_info[i].travelClass) : "-";
+            arrival.appendChild(travelClass);
+
+            var itineraryHorizontalLine = document.createElement("div");
+            itineraryHorizontalLine.classList.add("itinerary-horizontal-line");
+            itineraryBody.appendChild(itineraryBodyBound);
+            itineraryBody.appendChild(itineraryHorizontalLine);
+
+        }
+
+        //passenger information
+        var itineraryBodyPassengers = document.createElement("div");
+        itineraryBodyPassengers.classList.add("itinerary-body-passengers");
+        itineraryBody.appendChild(itineraryBodyPassengers);
+
+        var passengersLabel = document.createElement("div");
+        passengersLabel.classList.add("passengers-label");
+        itineraryBodyPassengers.appendChild(passengersLabel);
+        passengersLabel.innerText = labelsList.PASSENGERS ? labelsList.PASSENGERS : "Passengers";
+
+        var passengerNames = document.createElement("div");
+        passengerNames.classList.add("passenger-names");
+        itineraryBodyPassengers.appendChild(passengerNames);
+
+        for(var i = 0; i < payload.passenger_info.length; i++) {
+            var passengerName = document.createElement("div");
+            passengerName.classList.add("passenger-name");
+            passengerName.innerText = payload.passenger_info[i].name ? payload.passenger_info[i].name : "-";
+            passengerNames.appendChild(passengerName);
+        }
+
+        bubbleWrap.insertBefore(itineraryContainer, bubbleTyping);
+    }
+};
+
+function getItineraryStatus(itineraryHeader, itineraryStatus) {
+    if(itineraryStatus === "UNCONFIRMED") {
+        itineraryHeader.classList.add("itinerary-unconfirmed-header");
+    }  else {
+        itineraryHeader.classList.add("itinerary-header");
+    }
+    return itineraryHeader;
+}
+
+function getTitleCase (sentence) {
+    if(sentence) {
+        return sentence.toLowerCase().split(" ").map(function(word) {
+            return word.substring(0, 1).toUpperCase() + word.substring(1);
+        }).join(" ");
+    }
+}
+
+function prepJS(options) {
+    var relativePath = options.cssbase || ".";
+
+    var appendJS = function (file) {
+        var script = document.createElement("script");
+        script.src = file + "?time=" + new Date().getTime();
+        script.type = "text/javascript";
+        document.getElementsByTagName("head")[0].appendChild(script);
+    };
+
+    appendJS(relativePath + "/webchat-base.js");
+}
+
+// exports for es6
+if (typeof exports !== "undefined") {
+    exports.itinerary = itinerary;
+    exports.prepJS = prepJS;
+}

@@ -1,0 +1,469 @@
+﻿//------------------------------------------------------------
+// Copyright (c) Microsoft Corporation.  All rights reserved.
+//------------------------------------------------------------
+
+var Button = new Object();
+
+Button.ActiveButton = null;
+Button.FocusButton = null;
+Button.DefaultButton = null;
+Button.CancelButton = null;
+Button.ActivatedButtonID = null;
+Button.Groups = {};
+
+Button.SetText = function(id, text) {
+    var button = document.getElementById(id);
+    if (button != null) {
+        for (var i = 0; i < button.children.length; i++) {
+            var ch = button.children[i];
+            if (ch.tagName.toLowerCase() == 'span') {
+                ch.innerHTML = text;    //// TODO: this causes the text wrapped with an <a> tag to get inserted in Firefox, which needs to get fixed.
+                break;
+            }
+        }
+    }
+    var span = document.getElementById(id + '_disabled');
+    if (span != null) {
+        for (var i = 0; i < span.children.length; i++) {
+            var ch = span.children[i];
+            if (ch.tagName.toLowerCase() == 'span') {
+                ch.innerHTML = text;
+                break;
+            }
+        }
+    }
+
+    Button.ResizeButtons();
+}
+
+Button.Click = function(id) {
+    var button = document.getElementById(id);
+    if (button != null) {
+        Button.SimulateClick(button);
+    }
+}
+
+Button.Enable = function(id)
+{
+    var button = document.getElementById(id);
+    var span = document.getElementById(id + '_disabled');
+
+    if ((button != null) && (span != null))
+    {
+        button.disable = false;
+        
+        // check to make sure the button is visible before modifing the display property
+        if ((button.style.display == 'inline-block') || (span.style.display == 'inline-block'))
+        {
+            span.style.display = 'none';
+            button.style.display = 'inline-block';
+        }
+    }
+}
+
+Button.Disable = function(id)
+{
+    var button = document.getElementById(id);
+    var span = document.getElementById(id + '_disabled');
+
+    if ((button != null) && (span != null))
+    {
+        // check to make sure the button is visible before modifing the display property
+        if ((button.style.display == 'inline-block') || (span.style.display == 'inline-block'))
+        {
+            button.style.display = 'none';
+            span.style.display = 'inline-block';
+        }
+
+        button.disable = true;
+    }
+}
+
+Button.Show = function(id)
+{
+    var button = document.getElementById(id);
+    var span = document.getElementById(id + '_disabled');
+
+    if ((button != null) && (span != null))
+    {
+        if (button.disable)
+        {
+            button.style.display = 'none';
+            button.style.visibility = 'visible';
+            span.style.visibility = 'visible';
+            span.style.display = 'inline-block';
+        }
+        else
+        {
+            span.style.display = 'none';
+            span.style.visibility = 'visible';
+            button.style.visibility = 'visible';
+            button.style.display = 'inline-block';
+        }
+    }
+}
+
+Button.Hide = function(id, leaveInLayout)
+{
+    var button = document.getElementById(id);
+    var span = document.getElementById(id + '_disabled');
+
+    if ((button != null) && (span != null))
+    {
+        if (leaveInLayout)
+        {
+            span.style.display = 'none';
+            span.style.visibility = 'hidden';
+            button.style.display = 'inline-block';
+            button.style.visibility = 'hidden';
+        }
+        else
+        {
+            span.style.display = 'none';
+            button.style.display = 'none';
+        }
+    }
+}
+
+Button.AddGroup = function(id, group) {
+    var ids = Button.Groups[group];
+    if (ids) {
+        ids[ids.length] = id;
+    }
+    else {
+        Button.Groups[group] = [id];
+    }
+}
+
+Button.ResizeButtons = function() {
+    for (groupName in Button.Groups) {
+        var ids = Button.Groups[groupName];
+
+        if (ids) {
+            // Find the maxWidth of all the buttons in this group
+            var maxWidth = 0;
+            for (var i = 0; i < ids.length; i++) {
+                var button = document.getElementById(ids[i]);
+                if (button != null) {
+                    var width = Button.GetWidth(button);
+                    if (width > maxWidth) {
+                        maxWidth = width;
+                    }
+                }
+            }
+
+            // Set all of the buttons in this group to the maxWidth
+            for (var i = 0; i < ids.length; i++) {
+                var span = document.getElementById(ids[i] + '_disabled');
+                if (span != null) {
+                    span.style.width = maxWidth + 'px';
+                }
+                var button = document.getElementById(ids[i]);
+                if (button != null) {
+                    // bug 45623 - Resizing all buttons by at least one pixel so IE7 renders them correctly
+                    button.style.width = (maxWidth + 1) + 'px';
+                }
+            }
+        }
+    }
+}
+
+Button.GetWidth = function(button)
+{
+    var width = 0;
+
+    // NOTE: Here we are throwing away any custom width set directly on the button so we can get an accurate measurement of the
+    // underlying button content width. We use the content width to set width on all buttons in a button group.
+    // Therefore, we were already throwing away custom width when we expand buttons to match other buttons in the button group.
+    // Now we are also throwing away custom width when they are larger than the content of any button in the group.
+    button.style.width = 'auto';
+
+    // button doesn't have layout yet, so cannot get width
+    // do some fancy work to create and measure it
+    if (button.style.display == 'none' || button.clientWidth == 0)
+    {
+        var tempButton = button.cloneNode(true);
+
+        tempButton.style.position = 'absolute';
+        tempButton.style.left = '-10000px';
+        tempButton.style.display = 'inline-block';
+
+        var element = document.body.appendChild(tempButton);
+        width = element.clientWidth;
+        
+        // now get rid of the element
+        element.style.display = 'none';
+        document.body.removeChild(element);
+    }
+    else
+    {
+        width = button.clientWidth;
+    }
+
+    return width;
+}
+
+Button.MouseOver = function(id)
+{
+    if (Button.ActiveButton == id)
+    {
+        Button.SetActiveState(id);
+    }
+    else
+    {
+        Button.SetHoverState(id);
+    }
+}
+
+Button.MouseOut = function(id)
+{
+    if ((Button.FocusButton == id) || ((Button.FocusButton == null) && (Button.DefaultButton == id)))
+    {
+        Button.SetFocusedState(id);
+    }
+    else
+    {
+        Button.SetRestState(id);
+    }
+}
+
+Button.MouseDown = function(id)
+{
+    Button.ActiveButton = id;
+    Button.SetActiveState(id);
+}
+
+Button.Focus = function(id)
+{
+    Button.FocusButton = id;
+
+    if (Button.ActiveButton == id)
+    {
+        Button.SetActiveState(id);
+    }
+    else
+    {
+        Button.SetFocusedState(id);
+    }
+}
+
+Button.Blur = function(id)
+{
+    Button.FocusButton = null;
+
+    Button.SetRestState(id);
+
+    if (Button.DefaultButton != null && Button.DefaultButton != '')
+    {
+        Button.SetFocusedState(Button.DefaultButton);
+    }
+    
+}
+
+Button.MouseUp = function()
+{
+    if (Button.ActiveButton != null)
+    {
+        Button.SetFocusedState(Button.ActiveButton);
+        Button.ActiveButton = null;
+    }
+}
+
+Button.AttachDefaultButtonHandlers = function()
+{
+    var elems = window.document.getElementsByTagName('a');
+
+    for (i = 0; i < elems.length; i++)
+    {
+        $addHandler(elems[i], 'blur', Button.OnBlurEnableDefaultButtonHandler);
+        $addHandler(elems[i], 'focus', Button.OnFocusDisableDefaultButtonHandler);
+    }
+
+    elems = window.document.getElementsByTagName('textarea');
+
+    for (i = 0; i < elems.length; i++)
+    {
+        $addHandler(elems[i], 'blur', Button.OnBlurEnableDefaultButtonHandler);
+        $addHandler(elems[i], 'focus', Button.OnFocusDisableDefaultButtonHandler);
+    }
+
+    elems = window.document.getElementsByTagName('select');
+
+    for (i = 0; i < elems.length; i++)
+    {
+        $addHandler(elems[i], 'blur', Button.OnBlurEnableDefaultButtonHandler);
+        $addHandler(elems[i], 'focus', Button.OnFocusDisableDefaultButtonHandler);
+    }
+
+    elems = window.document.getElementsByTagName('form');
+
+    for (i = 0; i < elems.length; i++)
+    {
+        $addHandler(elems[i], 'keypress', Button.SuppressionDefaultKeyHandling);
+    }
+}
+
+Button.OnBlurEnableDefaultButtonHandler = function(evt)
+{
+    if (Button.DefaultButton != null && Button.DefaultButton != '')
+    {
+        Button.SetFocusedState(Button.DefaultButton);
+    }
+}
+
+Button.OnFocusDisableDefaultButtonHandler = function(evt)
+{
+    if (Button.DefaultButton != null && Button.DefaultButton != evt.target.id)
+    {
+        Button.SetRestState(Button.DefaultButton);
+    }
+}
+
+Button.DefaultButtonKeyDownHandler = function(evt)
+{
+    var target = evt.target || evt.srcElement;
+    var tagName = target.tagName;
+
+    if (((evt.charCode == 13) || (evt.keyCode == 13)) && (Button.DefaultButton != null) && (Button.DefaultButton != '')) // Enter key code
+    {
+        if ((tagName.toUpperCase() != 'A') &&
+            (tagName.toUpperCase() != 'TEXTAREA') &&
+            (tagName.toUpperCase() != 'SELECT'))
+        {
+            Button.ActivatedButtonID = Button.DefaultButton;
+        }
+    }
+
+    if (((evt.charCode == 27) || (evt.keyCode == 27)) && (Button.CancelButton != null) && (Button.CancelButton != '')) // Esc key code
+    {
+        if ((tagName.toUpperCase() != 'SELECT'))
+        {
+            Button.ActivatedButtonID = Button.CancelButton;
+        }
+    }
+    
+    return true;
+}
+
+Button.DefaultButtonKeyUpHandler = function(evt)
+{
+    if (Button.ActivatedButtonID != null)
+    {
+        var elem = document.getElementById(Button.ActivatedButtonID);
+
+        Button.ActivatedButtonID = null;    // Clean out the last key down, so that we know if a new key down happened.
+
+        if (elem != null)
+        {
+            if (elem.style.display.toLowerCase() != 'none')
+            {
+                Button.SimulateClick(elem);
+            }            
+        }
+    }
+    
+    return true;
+}
+
+Button.SuppressionDefaultKeyHandling = function(evt)
+{
+    if (Button.ActivatedButtonID != null)
+    {
+        if (evt.preventDefault)
+        {
+            evt.preventDefault();
+        }
+        else
+        {
+            evt.keyCode = 0;
+            evt.cancelBubble = true;
+            evt.returnValue = false;
+        }
+
+        return false;
+    }
+
+    return true;
+}
+
+Button.SimulateClick = function(elem)
+{
+    if (elem.click && !(Sys.Browser.agent == Sys.Browser.Firefox))
+    {
+        elem.click();
+    }
+    else
+    {
+        var clickEvt = document.createEvent("MouseEvents");
+        clickEvt.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+        if (elem.dispatchEvent(clickEvt) && (Sys.Browser.agent == Sys.Browser.Firefox))
+        {
+            // Firefox does not perform the default action of following the href on <a> tags, so we have to manually follow it.
+            window.location.href = elem.href;
+        }
+    }
+}
+
+Button.SetDefaultButton = function(id)
+{
+    if (Button.DefaultButton != null && Button.DefaultButton != '')
+    {
+        Button.SetRestState(Button.DefaultButton);
+    }
+
+    Button.DefaultButton = id
+
+    Button.SetFocusedState(id);
+}
+
+Button.SetCancelButton = function(id)
+{
+    Button.CancelButton = id
+}
+
+Button.SetRestState = function(id)
+{
+    Button.SetCssClass(id, '');
+}
+
+Button.SetHoverState = function(id)
+{
+    Button.SetCssClass(id, 'hover');
+}
+
+Button.SetActiveState = function(id)
+{
+    Button.SetCssClass(id, 'active');
+}
+
+Button.SetFocusedState = function(id)
+{
+    Button.SetCssClass(id, 'focus');
+}
+
+Button.SetCssClass = function(id, className)
+{
+    var button = document.getElementById(id);
+
+    if (button != null)
+    {
+        if (className == null || className == '')
+        {
+            className = button.attributes.boxtype.value;
+        }
+        else
+        {
+            className = button.attributes.boxtype.value + '-' + className;
+        }
+
+        var classes = button.className.split(' ');
+        if (classes.length > 0)
+        {
+            // replace the first class that is assumed to be the button class with the new button class.
+            classes[0] = className;
+            className = classes.join(' ');
+        }
+
+        button.className = className;
+    }
+}

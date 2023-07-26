@@ -1,0 +1,20 @@
+.paddingright { padding-right: 20px; }
+.paddingleft { padding-left: 20px; }
+.paddingright7 { padding-right: 7px; }
+.paddingleft7 { padding-left: 7px; }
+.paddingleft10 {padding-left: 10px; }
+.alignright { text-align: right; }
+.alignleft { text-align: left; }
+.leftalign {text-align: left; margin-left:0px;}
+
+.borderRight {border-right: 1px solid black; padding: 0px;}
+
+.userTypeRadioButtonMargin{margin-left: 10px; margin-top:50px;}
+.userVerificationInputLabel {text-align:left;padding-right: 10px;}
+.radioButtonMoreInformation { padding-left: 20px }
+
+.header .logo{float:left; padding-left:30px;}
+
+.HelpCallout td.PosRight{padding: 8px 0px 0px 0px; margin: 0px; vertical-align: top; font-size: 1px; border: none !important; background-color: transparent !important;}
+.HelpCallout td.PosRight > div{font-size: 1px; position: relative; left: 1px; border-bottom: none !important; border-right: none !important; border-left: none !important; width: 15px; background-color: transparent !important; padding: 0px; margin: 0px;}
+.HelpCallout td.PosRight > div div{height: 1px; overflow: hidden; border-top: none !important; border-bottom: none !important; border-right: none !important; padding: 0px; margin: 0px 0px 0px auto;}

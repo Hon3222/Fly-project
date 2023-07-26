@@ -1,0 +1,223 @@
+﻿//------------------------------------------------------------
+// Copyright (c) Microsoft Corporation.  All rights reserved.
+//------------------------------------------------------------
+var _OTPGateControl_TextBoxValidationRegex;
+
+function OTPGateControl_DisableButtonAndShowWaitAnimation(clickedButton, masterDivId) {
+    if (clickedButton) {
+        var waitImage = GetElementInContainerByContainerID(masterDivId, 'OTPGateControl_WaitAnimationImage');
+        CommonMultigate_SetButtonState(clickedButton, true);
+        CommonMultigate_WaitDisplay(true, waitImage);
+        CommonMultigate_DisableOptionRadioButtons();
+    }
+}
+
+function OTPGateControl_ContactMethodNextButton_ClientClick(clickedButton, masterDivId) {
+    //OTPGateControl_DisableButtonAndShowWaitAnimation(clickedButton, masterDivId);
+    var contactMethodDiv = GetElementInContainerByContainerID(masterDivId, 'OTPGateControl_SelectContactMethodDivDisplay');
+    contactMethodDiv.style.display = "none";
+    var challengeDiv = GetElementInContainerByContainerID(masterDivId, 'OTPGateControl_DivDisplay');
+    challengeDiv.style.display = "inline";
+    var selectedContactMethodObfuscatedData = GetElementInContainerByContainerID(masterDivId, 'SelectedContactMethodObfuscatedData');
+    var instructions = GetElementInContainerByContainerID(masterDivId, 'OTPGateControl_LabelInstructions');
+    if (instructions) {
+        instructions.children[0].innerHTML = selectedContactMethodObfuscatedData.value;
+    }
+}
+
+function OTPGateControl_BackButton_ClientClick(clickedButton, masterDivId) {
+    //OTPGateControl_DisableButtonAndShowWaitAnimation(clickedButton, masterDivId);
+    var contactMethodDiv = GetElementInContainerByContainerID(masterDivId, 'OTPGateControl_DivDisplay');
+    contactMethodDiv.style.display = "none";
+    var challengeDiv = GetElementInContainerByContainerID(masterDivId, 'OTPGateControl_SelectContactMethodDivDisplay');
+    challengeDiv.style.display = "inline";
+    var errorLabel = GetElementInContainerByContainerID(masterDivId, 'OTPGateControl_LabelValidationError');
+    if (errorLabel) {
+        errorLabel.style.display = "none";
+    }
+    var validationTextBox = GetElementInContainerByContainerID(masterDivId, 'OTPGateControl_PhoneNumberValidationBox');
+    if (validationTextBox) {
+        validationTextBox.value = "";
+    }
+}
+
+function OTPGateControl_ButtonSend_ClientClick(clickedButton, masterDivId) {
+    OTPGateControl_DisableButtonAndShowWaitAnimation(clickedButton, masterDivId);
+}
+
+
+function OTPGateControl_ContactMethodSelected(radioButton, masterDivId) {
+    if (radioButton) {
+        var indexOfSep = radioButton.value.indexOf("|");
+        var contactMethodKey = radioButton.value.substring(0, indexOfSep);
+        var contactMethodValue = radioButton.value.substring(indexOfSep+1);
+
+        var selectedContactMethodKey = GetElementInContainerByContainerID(masterDivId, 'SelectedContactMethodKeyHiddenField');
+        var selectedContactMethodObfuscatedData = GetElementInContainerByContainerID(masterDivId, 'SelectedContactMethodObfuscatedData');
+
+        if (selectedContactMethodKey) {            
+            selectedContactMethodKey.value = contactMethodKey;
+        }
+        if (selectedContactMethodObfuscatedData) {
+            selectedContactMethodObfuscatedData.value = contactMethodValue;
+        }
+    }
+}
+
+function OTPGateControl_ButtonValidate_ClientClick(clickedButton, masterDivId) {
+    if (clickedButton) {
+        CommonMultigate_SetButtonState(clickedButton, true);
+    }
+    OTPGateControl_SubmitHideControls(masterDivId);
+}
+
+function OTPGateControl_PhoneValidationTextBox_ClientClick(phoneValidationTextBox, masterDivId) {
+    if (phoneValidationTextBox) {
+        phoneValidationTextBox.style.color = '#666666';
+
+        if (!OTPGateControl_ValidateTextBox(phoneValidationTextBox, masterDivId, 'OTPGateControl_ButtonSend', 'OTPGateControl_IsButtonSendEnabled')) {
+            phoneValidationTextBox.value = '';
+        }
+    }
+}
+
+function OTPGateControl_PhoneValidationTextBox_OnPaste(phoneValidationTextBox, masterDivId) {
+    if (phoneValidationTextBox) {
+        setTimeout(function () {
+            phoneValidationTextBox.value = phoneValidationTextBox.value.trim();
+            OTPGateControl_ValidateTextBox(phoneValidationTextBox, masterDivId, 'OTPGateControl_ButtonSend', 'OTPGateControl_IsButtonSendEnabled');
+        }, 100);
+    }
+}
+
+function OTPGateControl_PhoneValidationTextBox_ClientOnKeyUp(phoneValidationTextBox, masterDivId) {
+    OTPGateControl_ValidateTextBox(phoneValidationTextBox, masterDivId, 'OTPGateControl_ButtonSend', 'OTPGateControl_IsButtonSendEnabled');
+}
+
+function OTPGateControl_TextBox_ClientClick(otpTextBox, masterDivId) {
+    if (otpTextBox) {
+        otpTextBox.style.color = '#666666';
+
+        if (!OTPGateControl_ValidateTextBox(otpTextBox, masterDivId, 'OTPGateControl_ButtonValidate', 'OTPGateControl_IsButtonValidateEnabled')) {
+            otpTextBox.value = '';
+        }
+   }
+}
+
+function OTPGateControl_TextBox_OnPaste(otpTextBox, masterDivId) {
+    if (otpTextBox) {
+        setTimeout(function () { otpTextBox.value = otpTextBox.value.trim();
+            OTPGateControl_ValidateTextBox(otpTextBox, masterDivId, 'OTPGateControl_ButtonValidate', 'OTPGateControl_IsButtonValidateEnabled');
+        }, 100);
+    }
+}
+
+function OTPGateControl_TextBox_ClientOnKeyUp(otpTextBox, masterDivId) {
+    OTPGateControl_ValidateTextBox(otpTextBox, masterDivId, 'OTPGateControl_ButtonValidate', 'OTPGateControl_IsButtonValidateEnabled');
+}
+
+function OTPGateControl_ValidateTextBox(textBox, masterDivId, button, hiddenFieldElement) {
+    if (textBox) {
+        var ValidateButton = GetElementInContainerByContainerID(masterDivId, button);
+
+        if (OTPGateControl_IsValidOTP(textBox)) {
+            CommonMultigate_SetButtonState(ValidateButton, false);
+            CommonMultigate_SetElementValue(masterDivId, hiddenFieldElement, 'true');
+            return true;
+        }
+        else {
+            CommonMultigate_SetButtonState(ValidateButton, true);
+            CommonMultigate_SetElementValue(masterDivId, hiddenFieldElement, 'false');
+        }
+    }
+    return false;
+}
+
+function OTPGateControl_IsValidOTP(textBox) {
+    if (_OTPGateControl_TextBoxValidationRegex === undefined) {
+        _OTPGateControl_TextBoxValidationRegex = new RegExp($get('RegexText').innerHTML);
+    }
+    return _OTPGateControl_TextBoxValidationRegex.test(textBox.value);
+}
+
+function OTPGateControl_LinkButtonTryAgain_ClientClick(clickedButton, masterDivId) {
+    OTPGateControl_SubmitHideControls(masterDivId);
+}
+
+function OTPGateControl_LinkButtonContactAdministrator_ClientClick(clickedButton, masterDivId, adminEmail, adminTargetUrl) {
+    CommonMultigate_OpenCustomAdminLink(adminEmail, adminTargetUrl);
+    OTPGateControl_SubmitHideControls(masterDivId);
+}
+
+function OTPGateControl_SubmitHideControls(masterDivId) {
+
+    if (IsUsingSlideDownHelper(masterDivId)) {
+        var helperLinkButton = GetElementInContainerByContainerID(masterDivId, 'OTPGateControl_LinkButtonHelper');
+        var helperLinksAndExplanation = GetElementInContainerByContainerID(masterDivId, 'OTPGateControl_HelpSlider');
+
+        CommonMultigate_SetLinkButtonState(helperLinkButton, true);
+        CommonMultigate_SetDisplayAttribute(helperLinksAndExplanation, 'none');
+    }
+    else {
+        var tryAgainButton = GetElementInContainerByContainerID(masterDivId, 'OTPGateControl_LinkButtonTryAgain');
+        var contactAdminButton = GetElementInContainerByContainerID(masterDivId, 'OTPGateControl_LinkButtonContactAdministrator');
+
+        CommonMultigate_SetLinkButtonState(tryAgainButton, true);
+        CommonMultigate_SetLinkButtonState(contactAdminButton, true);
+    }
+
+    var validateButton = GetElementInContainerByContainerID(masterDivId, 'OTPGateControl_ButtonValidate'); 
+    var contactSupport = GetElementInContainerByContainerID(masterDivId, 'OTPGateControl_ContactSupportDiv');
+    var waitImage = GetElementInContainerByContainerID(masterDivId, 'OTPGateControl_WaitAnimationImage');
+    var otpTextBox = GetElementInContainerByContainerID(masterDivId, 'OTPGateControl_TextBox');
+
+
+    CommonMultigate_SetButtonState(validateButton, true);
+    CommonMultigate_WaitDisplay(true, waitImage);
+    CommonMultigate_DisableOptionRadioButtons();
+    CommonMultigate_SetTextBoxState(otpTextBox, true);
+
+
+    if (null != contactSupport) {
+        CommonMultigate_SetDisplayAttribute(contactSupport, 'none');
+    }
+}
+
+function IsUsingSlideDownHelper(masterDivId) {
+    var isUsing = false;
+    var isUsingHelperHiddenField = GetElementInContainerByContainerID(masterDivId, 'OTPGateControl_IsUsingSlideDownHelper');
+    if (isUsingHelperHiddenField && isUsingHelperHiddenField.value && isUsingHelperHiddenField.value.toLowerCase() == "true") {
+        isUsing = true;
+    }
+
+    return isUsing;
+}
+
+function OTPGateControl_DisplayTryAgainLinks(masterDivId) {
+
+    if (IsUsingSlideDownHelper(masterDivId)) {
+        var helperLinkButton = GetElementInContainerByContainerID(masterDivId, 'OTPGateControl_LinkButtonHelper');
+        CommonMultigate_SetLinkButtonState(helperLinkButton, false);
+    }
+    else {
+        var tryAgainButton = GetElementInContainerByContainerID(masterDivId, 'OTPGateControl_LinkButtonTryAgain');
+        var contactAdminButton = GetElementInContainerByContainerID(masterDivId, 'OTPGateControl_LinkButtonContactAdministrator');
+        var contactSupport = GetElementInContainerByContainerID(masterDivId, 'OTPGateControl_ContactSupportDiv');
+
+        CommonMultigate_SetLinkButtonState(tryAgainButton, false);
+        CommonMultigate_SetLinkButtonState(contactAdminButton, false);
+    }
+
+    CommonMultigate_SetElementValue(masterDivId, 'OTPGateControl_IsDelayedButtonsDivEnabled', 'true');
+
+
+    if (null != contactSupport) {
+        CommonMultigate_SetDisplayAttribute(contactSupport, 'inline');
+    }
+}
+
+function OTPGateControl_ToggleHelpDiv_ClientClick(clickedButton, masterDivId) {
+    var helpSlider = GetElementInContainerByContainerID(masterDivId, 'OTPGateControl_HelpSlider');
+    $(helpSlider).slideToggle("fast");
+}
+ 
